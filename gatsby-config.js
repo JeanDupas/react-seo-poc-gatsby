@@ -1,6 +1,6 @@
 module.exports = {
   siteMetadata: {
-    title: `index.html`,
+    title: `Gatsby POC SEO`,
     description: `Gatsby POC react`,
   },
   plugins: [
