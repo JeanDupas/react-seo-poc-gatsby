@@ -1,30 +1,38 @@
 const path = require(`path`)
 const { createFilePath } = require(`gatsby-source-filesystem`)
 
+const getData = async path => {
+  if (!path) {
+    return null
+  }
+
+  try {
+    const res = await fetch(`https://api.coingecko.com/api/v3/coins/${path}`)
+    return await res.json()
+  } catch (e) {
+    return null
+  }
+}
+
 exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
 
   // Define a template for blog post
-  const blogPost = path.resolve(`./src/templates/blog-post.js`)
+  const coinPage = path.resolve(`./src/templates/coin.tsx`)
 
   // Get all markdown blog posts sorted by date
-  const result = await graphql(
-    `
-      {
-        allMarkdownRemark(
-          sort: { fields: [frontmatter___date], order: ASC }
-          limit: 1000
-        ) {
-          nodes {
+  const result = await graphql(`
+    query {
+      allMarketsJson {
+        edges {
+          node {
             id
-            fields {
-              slug
-            }
+            slug
           }
         }
       }
-    `
-  )
+    }
+  `)
 
   if (result.errors) {
     reporter.panicOnBuild(
@@ -34,24 +42,20 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     return
   }
 
-  const posts = result.data.allMarkdownRemark.nodes
+  const allData = result.data.allMarketsJson.edges
+  const coins = allData.map(p => p.node)
 
   // Create blog posts pages
   // But only if there's at least one markdown file found at "content/blog" (defined in gatsby-config.js)
   // `context` is available in the template as a prop and as a variable in GraphQL
 
-  if (posts.length > 0) {
-    posts.forEach((post, index) => {
-      const previousPostId = index === 0 ? null : posts[index - 1].id
-      const nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
-
+  if (coins.length > 0) {
+    coins.forEach((c, index) => {
       createPage({
-        path: post.fields.slug,
-        component: blogPost,
+        path: `/coin/${c.slug}`,
+        component: coinPage,
         context: {
-          id: post.id,
-          previousPostId,
-          nextPostId,
+          slug: c.slug,
         },
       })
     })
