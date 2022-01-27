@@ -9,7 +9,6 @@ import { CircularProgress, Container, Grid } from "@mui/material"
 import Table from "../components/Table/Table"
 
 const CryptoList = ({ data, location }) => {
-  console.log("data", data)
   const siteTitle = data.site.siteMetadata?.title || `Title`
   const posts = data.allMarketsJson.edges
 
@@ -32,7 +31,7 @@ const CryptoList = ({ data, location }) => {
           .then(function (result) {
             setDate(new Date())
             setLoading(false)
-            setCoins(result)
+            setCoins(result.map(r => ({ ...r, slug: r.id })))
           }),
       10000
     )

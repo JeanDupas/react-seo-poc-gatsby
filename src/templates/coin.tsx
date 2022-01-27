@@ -42,9 +42,7 @@ const BlogPostTemplate = ({ location, pageContext }) => {
 
   const { last_updated } = coin || {}
   const date = last_updated ? new Date(last_updated) : null
-
-  console.log("coin", coin)
-
+  
   return (
     <div>
       <Header onChange={setSearch} />
